@@ -1,0 +1,6 @@
+# Build artifact folders
+build/
+
+# Configuration files
+sdkconfig
+sdkconfig.old
