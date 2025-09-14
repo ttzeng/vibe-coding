@@ -1,338 +1,556 @@
-# ESP32-C3 SSD1306 OLED Display Driver
+# ESP32-C3 Advanced OLED Display System
 
-A comprehensive ESP-IDF component for driving 0.96" SSD1306-based OLED displays using the ESP32-C3 Super Mini board with the modern I2C Master API.
+A comprehensive, production-ready ESP-IDF project featuring a multi-mode OLED display system with animations, WiFi management, sensor integration, and interactive menus for the ESP32-C3 Super Mini board.
 
-## Features
+![ESP32-C3 OLED Display](https://img.shields.io/badge/ESP32--C3-OLED%20Display-blue) ![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v4.4%2B-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-- ✅ **Modern I2C Master API** - Uses the latest ESP-IDF I2C master driver
-- ✅ **Component Architecture** - Clean separation as reusable ESP-IDF component
-- ✅ **Graphics Primitives** - Points, lines, rectangles, and text rendering
-- ✅ **Font Support** - Complete ASCII character set with 8x16 pixel font
-- ✅ **Memory Efficient** - Optimized GRAM buffer management
-- ✅ **Error Handling** - Comprehensive error checking and logging
-- ✅ **Hardware Abstraction** - Easy to port to different GPIO configurations
+## 🌟 Features
 
-## Hardware Requirements
+### Display Modes
+- 🕐 **Digital Clock** - Real-time display with NTP synchronization
+- 💻 **System Monitor** - Heap usage, task count, uptime tracking
+- 🌡️ **Sensor Dashboard** - Temperature, humidity, pressure readings
+- 📶 **Network Status** - WiFi connection info, IP address, signal strength
+- 🎨 **Animation Gallery** - 5+ smooth animations (bouncing ball, starfield, matrix rain, etc.)
+- ⚙️ **Interactive Menu** - Button-controlled settings and configuration
 
-### Components
-- ESP32-C3 Super Mini development board
-- 0.96" SSD1306 OLED display (128x64 pixels)
-- Jumper wires
+### Advanced Features
+- 🎮 **Button Navigation** - Single press to cycle modes, menu interaction
+- 📡 **WiFi Management** - Auto-connect, scanning, status monitoring
+- 💾 **Settings Storage** - NVS-based configuration persistence
+- 🔧 **Component Architecture** - Modular, reusable ESP-IDF components
+- 📊 **Real-time Monitoring** - Performance metrics, memory usage
+- 🎯 **Error Handling** - Comprehensive error checking and recovery
 
-### Wiring Connections
-| ESP32-C3 Super Mini | SSD1306 OLED |
-|---------------------|--------------|
-| 3.3V                | VCC          |
-| GND                 | GND          |
-| GPIO8               | SDA          |
-| GPIO9               | SCL          |
+## 📋 Table of Contents
 
-## Software Requirements
+- [Hardware Requirements](#hardware-requirements)
+- [Software Requirements](#software-requirements)
+- [Installation](#installation)
+- [Wiring Guide](#wiring-guide)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-- ESP-IDF v5.0 or later
-- CMake 3.16 or later
-- Python 3.6 or later
+## 🛠️ Hardware Requirements
 
-## Project Structure
+### Essential Components
+| Component | Specification | Notes |
+|-----------|---------------|-------|
+| **Microcontroller** | ESP32-C3 Super Mini | Main development board |
+| **Display** | 0.96" SSD1306 OLED (128x64) | I2C interface |
+| **Connections** | Jumper wires | For wiring connections |
+| **Power** | USB-C cable | For programming and power |
 
-```
-esp32c3_oled_project/
-├── README.md
-├── CMakeLists.txt
-├── main/
-│   ├── CMakeLists.txt
-│   └── main.c
-└── components/
-    └── ssd1306/
-        ├── CMakeLists.txt
-        ├── include/
-        │   └── ssd1306.h
-        └── ssd1306.c
-```
+### Optional Components
+- Breadboard for prototyping
+- External sensors (DHT22, BME280, etc.)
+- Case/enclosure for finished project
 
-## Quick Start
+## 💻 Software Requirements
 
-### 1. Clone or Create Project
+- **ESP-IDF**: v4.4 or later
+- **CMake**: v3.16 or later  
+- **Python**: v3.6 or later
+- **Git**: For cloning repository
 
-Create a new directory and copy all the project files:
+### Platform Support
+- ✅ Linux
+- ✅ macOS
+- ✅ Windows (with ESP-IDF tools)
 
+## 🚀 Installation
+
+### 1. Clone Repository
 ```bash
-mkdir esp32c3_oled_project
-cd esp32c3_oled_project
-# Copy all project files here
+git clone https://github.com/your-username/esp32c3-oled-advanced.git
+cd esp32c3-oled-advanced
 ```
 
 ### 2. Set Up ESP-IDF Environment
-
 ```bash
-# Source ESP-IDF environment
-# . $HOME/esp/esp-idf/export.sh
+# Install ESP-IDF (if not already installed)
+mkdir -p ~/esp
+cd ~/esp
+git clone --recursive https://github.com/espressif/esp-idf.git
+cd esp-idf
+./install.sh esp32c3
+
+# Source the environment
+. ~/esp/esp-idf/export.sh
+# Or use: get_idf
 ```
 
 ### 3. Configure Project
-
 ```bash
-# Set target to ESP32-C3
+# Set target
 idf.py set-target esp32c3
 
-# Optional: Open menuconfig for additional settings
+# Configure project (optional)
 idf.py menuconfig
 ```
 
 ### 4. Build and Flash
-
 ```bash
-# Build the project
+# Build project
 idf.py build
 
-# Flash to device (replace /dev/ttyUSB0 with your port)
-idf.py -p /dev/ttyUSB0 flash
+# Flash to device (replace PORT with your serial port)
+idf.py -p /dev/ttyUSB0 flash monitor
 
-# Monitor serial output
-idf.py -p /dev/ttyUSB0 monitor
-
-# Or combine flash and monitor
+# Or combined command
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-## API Reference
+## 🔌 Wiring Guide
 
-### Device Management
+### Pin Connections
 
-#### `ssd1306_create()`
-```c
-ssd1306_handle_t ssd1306_create(i2c_master_bus_handle_t bus_handle, uint8_t dev_addr);
+| ESP32-C3 Super Mini | SSD1306 OLED | Function |
+|---------------------|--------------|----------|
+| **3.3V** | VCC | Power supply (3.3V) |
+| **GND** | GND | Ground reference |
+| **GPIO8** | SDA | I2C Data line |
+| **GPIO9** | SCL | I2C Clock line |
+| **GPIO0** | - | Boot button (built-in) |
+
+### Wiring Diagram
 ```
-Creates a new SSD1306 device handle.
-
-**Parameters:**
-- `bus_handle`: I2C master bus handle
-- `dev_addr`: I2C device address (typically 0x3C)
-
-**Returns:** Device handle or NULL on error
-
-#### `ssd1306_delete()`
-```c
-void ssd1306_delete(ssd1306_handle_t dev);
+ESP32-C3 Super Mini          SSD1306 OLED
+    ┌─────────────┐            ┌──────────┐
+    │         3V3 ├────────────┤ VCC      │
+    │         GND ├────────────┤ GND      │
+    │    GPIO8    ├────────────┤ SDA      │
+    │    GPIO9    ├────────────┤ SCL      │
+    │             │            │          │
+    │    GPIO0    │ (Button)   └──────────┘
+    └─────────────┘
 ```
-Deletes the SSD1306 device handle and frees resources.
 
-#### `ssd1306_init()`
+### Important Notes
+- ⚠️ **Voltage**: Ensure 3.3V power supply (not 5V)
+- 🔧 **Pull-ups**: Internal I2C pull-ups are enabled in software
+- 📍 **I2C Address**: Default is 0x3C (can be 0x3D on some displays)
+
+## ⚙️ Configuration
+
+### WiFi Setup
+Edit `main/app_config.h`:
 ```c
-esp_err_t ssd1306_init(ssd1306_handle_t dev);
+#define WIFI_SSID                   "YourWiFiSSID"
+#define WIFI_PASS                   "YourWiFiPassword"
 ```
-Initializes the SSD1306 display with default settings.
-
-### Display Control
-
-#### `ssd1306_clear_screen()`
-```c
-void ssd1306_clear_screen(ssd1306_handle_t dev, uint8_t chFill);
-```
-Clears the display buffer.
-
-**Parameters:**
-- `chFill`: Fill pattern (0x00 for black, 0xFF for white)
-
-#### `ssd1306_refresh_gram()`
-```c
-void ssd1306_refresh_gram(ssd1306_handle_t dev);
-```
-Updates the display with the current buffer contents.
-
-### Graphics Functions
-
-#### `ssd1306_draw_point()`
-```c
-void ssd1306_draw_point(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chPoint);
-```
-Draws a single pixel.
-
-**Parameters:**
-- `chXpos`: X coordinate (0-127)
-- `chYpos`: Y coordinate (0-63)
-- `chPoint`: Color (0=black, 1=white)
-
-#### `ssd1306_draw_line()`
-```c
-void ssd1306_draw_line(ssd1306_handle_t dev, uint8_t chXpos0, uint8_t chYpos0, 
-                       uint8_t chXpos1, uint8_t chYpos1, uint8_t chMode);
-```
-Draws a line between two points.
-
-#### `ssd1306_draw_rectangle()`
-```c
-void ssd1306_draw_rectangle(ssd1306_handle_t dev, uint8_t chXpos0, uint8_t chYpos0, 
-                            uint8_t chWidth, uint8_t chHeight, uint8_t chMode);
-```
-Draws a rectangle outline.
-
-### Text Functions
-
-#### `ssd1306_show_char()`
-```c
-void ssd1306_show_char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, 
-                       uint8_t chChr, uint8_t chSize, uint8_t chMode);
-```
-Displays a single character.
-
-**Parameters:**
-- `chChr`: ASCII character to display
-- `chSize`: Font size (16 supported)
-- `chMode`: Color (0=black, 1=white)
-
-#### `ssd1306_show_string()`
-```c
-void ssd1306_show_string(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, 
-                         const char *pchString, uint8_t chSize, uint8_t chMode);
-```
-Displays a text string with automatic word wrapping.
-
-## Configuration
 
 ### Display Settings
-
-The following constants can be modified in `ssd1306.h`:
-
 ```c
-#define SSD1306_I2C_ADDRESS     0x3C    // I2C address
-#define SSD1306_WIDTH           128     // Display width
-#define SSD1306_HEIGHT          64      // Display height
+#define I2C_MASTER_SCL_IO           9       // SCL pin
+#define I2C_MASTER_SDA_IO           8       // SDA pin
+#define I2C_MASTER_FREQ_HZ          400000  // I2C frequency
 ```
 
-### GPIO Configuration
-
-Modify the GPIO pins in `main.c`:
-
+### Application Settings
 ```c
-#define I2C_MASTER_SCL_IO       9       // SCL pin
-#define I2C_MASTER_SDA_IO       8       // SDA pin
-#define I2C_MASTER_FREQ_HZ      400000  // I2C frequency
+#define DISPLAY_UPDATE_INTERVAL_MS  100     // Display refresh rate
+#define SENSOR_READ_INTERVAL_MS     1000    // Sensor update rate
+#define MENU_TIMEOUT_MS            10000    // Menu auto-timeout
 ```
 
-## Usage Example
-
+### Time Zone Configuration
+Edit in `main/main.c`:
 ```c
-#include "ssd1306.h"
-
-// Initialize I2C master bus
-i2c_master_bus_handle_t bus_handle;
-i2c_master_bus_config_t i2c_mst_config = {
-    .clk_source = I2C_CLK_SRC_DEFAULT,
-    .i2c_port = I2C_NUM_0,
-    .scl_io_num = 9,
-    .sda_io_num = 8,
-    .glitch_ignore_cnt = 7,
-    .flags.enable_internal_pullup = true,
-};
-i2c_new_master_bus(&i2c_mst_config, &bus_handle);
-
-// Create and initialize display
-ssd1306_handle_t display = ssd1306_create(bus_handle, SSD1306_I2C_ADDRESS);
-ssd1306_init(display);
-
-// Clear display
-ssd1306_clear_screen(display, 0x00);
-
-// Draw some graphics
-ssd1306_show_string(display, 0, 0, "Hello World!", 16, 1);
-ssd1306_draw_rectangle(display, 10, 20, 50, 30, 1);
-
-// Update display
-ssd1306_refresh_gram(display);
+// Set your local timezone
+setenv("TZ", "EST5EDT,M3.2.0/2,M11.1.0", 1);  // Eastern Time
+// setenv("TZ", "PST8PDT,M3.2.0,M11.1.0", 1);  // Pacific Time
+// setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1); // Central European Time
 ```
 
-## Troubleshooting
+## 🎮 Usage
 
-### Common Issues
+### Display Mode Navigation
+**Single Button Press**: Cycles through display modes
+1. 🕐 **Clock Mode** → Shows current time, date, and uptime
+2. 💻 **System Info** → Memory usage, task count, system stats
+3. 🌡️ **Sensor Data** → Environmental readings and graphs
+4. 📶 **Network Info** → WiFi status, IP address, signal strength
+5. 🎨 **Animations** → Cycles through various animations
+6. ⚙️ **Menu System** → Interactive configuration menu
 
-1. **Display not working**
-   - Check wiring connections
-   - Verify I2C address (use I2C scanner)
-   - Ensure 3.3V power supply
+### Menu System Navigation
+When in **Menu Mode**:
+- **Single Press**: Navigate down
+- **Hold Press**: Select item
+- **Auto-timeout**: Returns to clock mode after 10 seconds
 
-2. **Compilation errors**
-   - Verify ESP-IDF version (v5.0+)
-   - Check component dependencies
-   - Ensure proper project structure
-
-3. **Garbled display**
-   - Check I2C timing/frequency
-   - Verify display initialization sequence
-   - Ensure proper GRAM refresh calls
-
-### Debug Tips
-
-Enable debug logging in `menuconfig`:
+### Menu Structure
 ```
-Component config → Log output → Default log verbosity → Debug
+📁 Main Menu
+├── 🖥️ Display Settings
+│   ├── Brightness +
+│   ├── Brightness -
+│   └── ← Back
+├── 📡 Network Settings  
+│   ├── WiFi Scan
+│   ├── Disconnect WiFi
+│   └── ← Back
+├── ⚙️ System Settings
+│   ├── System Info
+│   ├── Factory Reset
+│   ├── Reboot
+│   └── ← Back
+└── ℹ️ About
+    ├── ESP32-C3 OLED
+    ├── Version: 2.0.0
+    ├── By: Your Name
+    └── ← Back
 ```
 
-Check I2C communication:
-```bash
-# Monitor I2C traffic
-idf.py monitor
+### Animation Showcase
+- **Bouncing Ball** - Physics simulation with collision detection
+- **Starfield** - Scrolling stars with speed variations
+- **Matrix Rain** - Digital rain effect with random characters
+- **Wave Patterns** - Sine wave animations with particles
+- **Spiral** - Rotating spiral with dynamic radius
+
+## 📁 Project Structure
+
+```
+esp32c3_oled_advanced/
+├── 📄 README.md                    # This file
+├── 📄 CMakeLists.txt               # Root CMake configuration
+├── 📄 sdkconfig.defaults           # Default ESP-IDF configuration
+├── 📄 partitions.csv               # Partition table
+├── 📁 main/                        # Main application
+│   ├── 📄 main.c                   # Application entry point
+│   ├── 📄 app_config.h             # Configuration constants
+│   ├── 📄 display_manager.c/.h     # Display mode management
+│   ├── 📄 menu_system.c/.h         # Interactive menu system
+│   ├── 📄 sensor_manager.c/.h      # Sensor data handling
+│   ├── 📄 wifi_manager.c/.h        # WiFi connection management
+│   └── 📄 CMakeLists.txt           # Main CMake config
+├── 📁 components/                  # Reusable components
+│   ├── 📁 ssd1306/                 # OLED display driver
+│   │   ├── 📄 ssd1306.c/.h         # Display driver implementation
+│   │   └── 📄 CMakeLists.txt       # Component CMake config
+│   ├── 📁 animations/              # Animation engine
+│   │   ├── 📄 animations.c/.h      # Animation implementations
+│   │   └── 📄 CMakeLists.txt       # Component CMake config
+│   └── 📁 utils/                   # Utility functions
+│       ├── 📄 utils.c/.h           # Helper functions
+│       └── 📄 CMakeLists.txt       # Component CMake config
+└── 📁 docs/                        # Documentation
+    ├── 📄 API_Reference.md          # Detailed API documentation
+    ├── 📄 Hardware_Setup.md         # Hardware setup guide
+    └── 📄 User_Guide.md             # Comprehensive user guide
 ```
 
-### I2C Scanner
+## 📚 API Documentation
 
-Add this code to scan for I2C devices:
+### Core Components
 
+#### Display Manager
 ```c
-void i2c_scanner(i2c_master_bus_handle_t bus_handle) {
-    ESP_LOGI("I2C_SCANNER", "Scanning I2C bus...");
-    for (uint8_t addr = 1; addr < 127; addr++) {
-        i2c_device_config_t dev_cfg = {
-            .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-            .device_address = addr,
-            .scl_speed_hz = 100000,
-        };
-        
-        i2c_master_dev_handle_t dev_handle;
-        if (i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle) == ESP_OK) {
-            uint8_t data = 0;
-            if (i2c_master_transmit(dev_handle, &data, 1, 100) == ESP_OK) {
-                ESP_LOGI("I2C_SCANNER", "Found device at address 0x%02X", addr);
-            }
-            i2c_master_bus_rm_device(dev_handle);
-        }
+// Create display manager
+display_manager_handle_t manager = display_manager_create(display_handle);
+
+// Set display mode
+display_manager_set_mode(manager, DISPLAY_MODE_CLOCK);
+
+// Update display (call in main loop)
+display_manager_update(manager);
+```
+
+#### Animation System
+```c
+// Initialize animations
+animations_init();
+
+// Set animation type
+animations_set_type(ANIM_BOUNCING_BALL);
+
+// Update animation frame
+animations_update(display_handle, frame_number);
+```
+
+#### Sensor Manager
+```c
+// Initialize sensors
+sensor_manager_init();
+
+// Update sensor readings
+sensor_manager_update();
+
+// Get sensor data
+sensor_data_t* data = sensor_manager_get_data();
+printf("Temperature: %.1f°C\n", data->temperature);
+```
+
+### Display Modes
+```c
+typedef enum {
+    DISPLAY_MODE_CLOCK = 0,
+    DISPLAY_MODE_SYSTEM_INFO,
+    DISPLAY_MODE_SENSOR_DATA,
+    DISPLAY_MODE_NETWORK_INFO,
+    DISPLAY_MODE_ANIMATIONS,
+    DISPLAY_MODE_MENU,
+    DISPLAY_MODE_MAX
+} display_mode_t;
+```
+
+### Animation Types
+```c
+typedef enum {
+    ANIM_BOUNCING_BALL,
+    ANIM_STARFIELD,
+    ANIM_MATRIX_RAIN,
+    ANIM_WAVE,
+    ANIM_SPIRAL,
+    ANIM_MAX
+} animation_type_t;
+```
+
+## 🎨 Customization
+
+### Adding New Display Modes
+1. **Define new mode** in `app_config.h`:
+```c
+typedef enum {
+    DISPLAY_MODE_CLOCK = 0,
+    // ... existing modes ...
+    DISPLAY_MODE_YOUR_NEW_MODE,  // Add here
+    DISPLAY_MODE_MAX
+} display_mode_t;
+```
+
+2. **Implement display function** in `display_manager.c`:
+```c
+static void display_your_new_mode(display_manager_handle_t manager)
+{
+    ssd1306_show_string(manager->display, 0, 0, "Custom Mode", 16, 1);
+    // Add your custom display logic here
+}
+```
+
+3. **Add to switch statement**:
+```c
+switch (manager->current_mode) {
+    // ... existing cases ...
+    case DISPLAY_MODE_YOUR_NEW_MODE:
+        display_your_new_mode(manager);
+        break;
+}
+```
+
+### Creating Custom Animations
+1. **Add animation type**:
+```c
+typedef enum {
+    // ... existing animations ...
+    ANIM_YOUR_ANIMATION,
+    ANIM_MAX
+} animation_type_t;
+```
+
+2. **Implement animation function**:
+```c
+static void animate_your_animation(ssd1306_handle_t display, uint32_t frame)
+{
+    // Your animation logic here
+    for (int x = 0; x < 128; x++) {
+        int y = 32 + 20 * sin((x + frame * 2) * 0.1);
+        ssd1306_draw_point(display, x, y, 1);
     }
 }
 ```
 
-## Performance Notes
+### Adding Real Sensors
+Replace simulated sensors in `sensor_manager.c`:
+```c
+esp_err_t sensor_read_temperature(float *temperature)
+{
+    // Replace simulation with actual sensor reading
+    // Example for DHT22:
+    // *temperature = dht22_read_temperature();
+    return ESP_OK;
+}
+```
 
-- **Refresh Rate**: ~60 FPS possible with full screen updates
-- **Memory Usage**: 1024 bytes for GRAM buffer
-- **I2C Speed**: 400kHz recommended for optimal performance
-- **Power Consumption**: ~20mA typical operation
+### Menu Customization
+Add new menu items in `menu_system.c`:
+```c
+static const menu_item_t main_menu[] = {
+    // ... existing items ...
+    {"Your New Item", your_action_function, 0, false},
+};
+```
 
-## Contributing
+## 🔧 Troubleshooting
 
+### Common Issues
+
+#### Display Problems
+| Issue | Possible Cause | Solution |
+|-------|----------------|----------|
+| Blank display | Wiring, power, or I2C address | Check connections, verify 3.3V power, try address 0x3D |
+| Garbled text | Font corruption or I2C timing | Reduce I2C frequency, check font data integrity |
+| Flickering | Insufficient power or EMI | Use quality USB cable, add decoupling capacitors |
+
+#### WiFi Issues
+| Issue | Possible Cause | Solution |
+|-------|----------------|----------|
+| Won't connect | Wrong credentials or weak signal | Verify SSID/password, check signal strength |
+| Frequent disconnects | Power saving or interference | Disable power save mode, try different channel |
+| Slow connection | Distance or interference | Move closer to router, check for interference |
+
+#### System Issues
+| Issue | Possible Cause | Solution |
+|-------|----------------|----------|
+| Boot loops | Memory issues or corrupted NVS | Erase flash, check heap usage |
+| Button not working | Hardware or debouncing | Check GPIO0 connection, adjust debounce time |
+| Crashes | Stack overflow or memory leaks | Increase stack sizes, monitor heap usage |
+
+### Debug Commands
+```bash
+# Monitor serial output
+idf.py monitor
+
+# Erase flash completely
+idf.py erase-flash
+
+# Build with debug symbols
+idf.py build -DCMAKE_BUILD_TYPE=Debug
+
+# Monitor with custom baud rate
+idf.py monitor -B 115200
+```
+
+### Enable Debug Logging
+In `menuconfig`:
+```
+Component config → Log output → Default log verbosity → Debug
+```
+
+### Memory Analysis
+```bash
+# Check binary size
+idf.py size
+
+# Detailed size analysis
+idf.py size-components
+
+# Memory usage at runtime (add to code):
+ESP_LOGI("HEAP", "Free: %d, Min: %d", 
+         esp_get_free_heap_size(), 
+         esp_get_minimum_free_heap_size());
+```
+
+## 🔍 Performance Optimization
+
+### Memory Optimization
+- Monitor heap usage with `esp_get_free_heap_size()`
+- Use stack overflow detection in debug builds
+- Optimize font data storage
+- Consider PSRAM for large data structures
+
+### Display Performance
+- Minimize full screen redraws
+- Use dirty region updates for animations
+- Optimize I2C frequency (400kHz recommended)
+- Batch I2C operations when possible
+
+### Power Consumption
+- Implement display sleep mode
+- Use light sleep between updates
+- Adjust sensor reading intervals
+- Optimize WiFi usage patterns
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+### Getting Started
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Add tests if applicable
-5. Submit a pull request
+5. Commit changes (`git commit -m 'Add amazing feature'`)
+6. Push to branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-## License
+### Code Style
+- Follow ESP-IDF coding standards
+- Use meaningful variable and function names
+- Add comprehensive comments
+- Include error handling
+- Update documentation for new features
 
-This project is released under the MIT License. See LICENSE file for details.
+### Testing
+- Test on actual hardware
+- Verify all display modes work
+- Check memory usage
+- Test WiFi connectivity
+- Validate menu navigation
 
-## Acknowledgments
+## 📄 License
 
-- ESP-IDF team for the excellent framework
-- SSD1306 datasheet and reference implementations
-- ESP32-C3 community for hardware insights
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Version History
+```
+MIT License
 
-- **v1.0.0** - Initial release with modern I2C Master API
-  - Basic graphics primitives
-  - Text rendering with 8x16 font
-  - Full SSD1306 initialization sequence
-  - Component-based architecture
+Copyright (c) 2024 Your Name
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 🙏 Acknowledgments
+
+- **ESP-IDF Team** - Excellent framework and documentation
+- **SSD1306 Community** - Display driver implementations and examples
+- **ESP32 Community** - Hardware insights and troubleshooting help
+- **Open Source Contributors** - Various code snippets and inspiration
+
+## 📞 Support
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/your-username/esp32c3-oled-advanced/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/esp32c3-oled-advanced/discussions)
+- 📧 **Email**: your-email@example.com
+- 📖 **Documentation**: [Project Wiki](https://github.com/your-username/esp32c3-oled-advanced/wiki)
+
+## 🔮 Future Enhancements
+
+- [ ] **Touch Interface** - Capacitive touch sensor integration
+- [ ] **Sound Effects** - Buzzer or speaker support
+- [ ] **Data Logging** - SD card or flash storage
+- [ ] **Web Interface** - Configuration via web browser
+- [ ] **IoT Integration** - MQTT, HTTP APIs
+- [ ] **More Sensors** - BME280, light sensors, motion detection
+- [ ] **Power Management** - Battery operation, sleep modes
+- [ ] **Custom Fonts** - Additional font sizes and styles
 
 ---
 
-**Note**: This README assumes you're familiar with ESP-IDF development. For beginners, please refer to the [ESP-IDF Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html).
+**⭐ If you find this project helpful, please give it a star! ⭐**
+
+**🔧 Happy Making! 🔧**
